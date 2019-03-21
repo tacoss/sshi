@@ -1,0 +1,13 @@
+{
+  "name": "sshi",
+  "version": "0.0.0",
+  "description": "SSH manager you'll <3!",
+  "bin": {
+    "sshi": "manager.sh"
+  },
+  "keywords": [
+    "ssh",
+    "manager"
+  ],
+  "license": "MIT"
+}
