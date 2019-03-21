@@ -27,30 +27,12 @@ cmd="${1:-}"
 name="${2:-}"
 extra="${3:-}"
 
-if [[ $@ =~ @([^:\ /]*) ]]; then
-  name="${BASH_REMATCH[1]}"
-
-  if ! exists $cmd $name; then
-    echo "Connection '$name' does not exists!"
-    exit 1
-  else
-    conn="$(echo "$AVAIL_SSHS" | awk "/^$name /{print \$2}")"
-    value="$(echo $@ | sed "s/@$name/$conn/g")"
-
-    if [ "$#" -ge 2 ]; then
-      exec $value
-    else
-      echo $conn
-    fi
-    exit 0
-  fi
-fi
-
 case $cmd in
   add|ad|a) ## Save SSH endpoint for later
     if ! exists $cmd $name; then
       if [[ $extra =~ ^.+@.+$ ]]; then
         echo "$name $extra" >> $SSHI_FILE
+        echo "Endpoint '$name' was added"
         exit 0
       else
         echo "Provide a valid endpoint, e.g. \`sshi $cmd $name user@host\`"
@@ -66,7 +48,8 @@ case $cmd in
       echo "Endpoint '$name' does not exists!"
       exit 1
     else
-      echo "$AVAIL_SSHS" | grep -vE "^$name " >> $SSHI_FILE
+      echo "$AVAIL_SSHS" | grep -vE "^$name " > $SSHI_FILE
+      echo "Endpoint '$name' was deleted"
       exit 0
     fi
     ;;
@@ -76,6 +59,25 @@ case $cmd in
     exit 0
     ;;
   *)
+    if [[ $@ =~ @([^:\ /]*) ]]; then
+      name="${BASH_REMATCH[1]}"
+
+      if ! exists - $name; then
+        echo "Endpoint '$name' does not exists!"
+        exit 1
+      else
+        conn="$(echo "$AVAIL_SSHS" | awk "/^$name /{print \$2}")"
+        value="$(echo $@ | sed "s/@$name/$conn/g")"
+
+        if [ "$#" -ge 2 ]; then
+          exec $value
+        else
+          echo $conn
+        fi
+        exit 0
+      fi
+    fi
+
     echo "Usage:"
     echo "  sshi [CMD|@NAME] [...]"
     echo
