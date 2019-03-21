@@ -2,7 +2,7 @@
 
 set -eu
 
-AVAIL_CMDS="$(cat $0 | awk -F'\\|.*##' '/[a-z|]+\) ##(.+?)/{printf "\033[36m%10s\033[0m %s\n",$1,$2}')"
+AVAIL_CMDS="$(cat $0 | awk -F'\\|.*##' '/[a-z|]+\) ##(.+?)/{printf "%5s  %s\n",$1,$2}')"
 AVAIL_SSHS=""
 
 SSHI_FILE="$HOME/.sshiconf"
@@ -47,35 +47,46 @@ if [[ $@ =~ @([^:\ /]*) ]]; then
 fi
 
 case $cmd in
-  add|ad|a) ## Save SSH connection for later
+  add|ad|a) ## Save SSH endpoint for later
     if ! exists $cmd $name; then
       if [[ $extra =~ ^.+@.+$ ]]; then
         echo "$name $extra" >> $SSHI_FILE
         exit 0
       else
-        echo "Provide a valid connection, e.g. \`sshi $cmd $name user@host\`"
+        echo "Provide a valid endpoint, e.g. \`sshi $cmd $name user@host\`"
         exit 1
       fi
     else
-      echo "Connection '$name' already exists!"
+      echo "Endpoint '$name' already exists!"
       exit 1
     fi
     ;;
-  del|de|d) ## Remove from saved connections
+  del|de|d) ## Remove from saved endpoints
     if ! exists $cmd $name; then
-      echo "Connection '$name' does not exists!"
+      echo "Endpoint '$name' does not exists!"
       exit 1
     else
       echo "$AVAIL_SSHS" | grep -vE "^$name " >> $SSHI_FILE
       exit 0
     fi
     ;;
-  ls|l) ## List registered connections
-    echo "Registered connections:"
-    echo "$AVAIL_SSHS" | awk '{printf "\033[36m%10s\033[0m %s\n",$1,$2}'
+  ls|l) ## List registered endpoints
+    echo "Registered endpoints:"
+    echo "$AVAIL_SSHS" | awk '{printf "  @%-15s  %s\n",$1,$2}'
     exit 0
     ;;
   *)
+    echo "Usage:"
+    echo "  sshi [CMD|@NAME] [...]"
+    echo
+    echo "Examples:"
+    echo "  sshi add local root@localhost"
+    echo "  sshi del my-site"
+    echo
+    echo "Endpoints are replaced on the fly, e.g."
+    echo "  sshi scp index.html @my-site:/var/www"
+    echo "    => scp index.html root@localhost:/var/www"
+    echo
     echo "Available commands:"
     echo "$AVAIL_CMDS"
     exit 1
