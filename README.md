@@ -14,7 +14,7 @@ $ npm i -g sshi # or `npm i sshi --save-dev`
 
 ## How it works?
 
-It stores your input in the `~/.sshiconf` file, each line is a record with name and endpoint separated by one single space, e.g.
+It stores your input in the `~/.sshiconf` file, each line is a record with name/endpoint separated by white-space, e.g.
 
 ```text
 admin root@remote.com
@@ -25,10 +25,11 @@ Just type `sshi @admin` to get connected, any additional arguments are sent as c
 
 - To add new endpoints `sshi save name user@host`
 - To remove added endpoints `sshi del name`
+- To list all registered endpoints `sshi ls`
 
-If the first argument is not an `@endpoint` placeholder then command substitution is performed and executed, e.g.
+When the first argument is not an `@endpoint` placeholder, then command substitution is performed and executed, e.g.
 
 ```bash
-$ sshi echo Connection is: @my-site
-=> Connection is: deploy@my-website.com
+$ sshi echo Your connection is: @my-site
+# Your connection is: deploy@my-website.com
 ```
