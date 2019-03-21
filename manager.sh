@@ -2,7 +2,7 @@
 
 set -eu
 
-AVAIL_CMDS="$(cat $0 | awk -F'\\|.*##' '/[a-z|]+\) ##(.+?)/{printf "%5s  %s\n",$1,$2}')"
+AVAIL_CMDS="$(cat $0 | awk -F'\\|.*##' '/[a-z|]+\) ##(.+?)/{printf "%10s %s\n",$1,$2}')"
 AVAIL_SSHS=""
 
 SSHI_FILE="$HOME/.sshiconf"
@@ -28,7 +28,13 @@ name="${2:-}"
 extra="${3:-}"
 
 case $cmd in
-  add|ad|a) ## Save SSH endpoint for later
+  download|down|d) ## Get files from endpoint
+    exec $0 scp $name $extra || exit 2
+    ;;
+  upload|up|u) ## Send files to endpoint
+    exec $0 scp $extra $name || exit 2
+    ;;
+  save|s) ## Save SSH endpoint for later
     if ! exists $cmd $name; then
       if [[ $extra =~ ^.+@.+$ ]]; then
         echo "$name $extra" >> $SSHI_FILE
@@ -43,7 +49,7 @@ case $cmd in
       exit 1
     fi
     ;;
-  del|de|d) ## Remove from saved endpoints
+  del|d) ## Remove from saved endpoints
     if ! exists $cmd $name; then
       echo "Endpoint '$name' does not exists!"
       exit 1
@@ -55,7 +61,7 @@ case $cmd in
     ;;
   ls|l) ## List registered endpoints
     echo "Registered endpoints:"
-    echo "$AVAIL_SSHS" | awk '{printf "  @%-15s  %s\n",$1,$2}'
+    echo "$AVAIL_SSHS" | awk '{printf "  @%-13s  %s\n",$1,$2}'
     exit 0
     ;;
   *)
@@ -82,7 +88,8 @@ case $cmd in
     echo "  sshi [CMD|@NAME] [...]"
     echo
     echo "Examples:"
-    echo "  sshi add local root@localhost"
+    echo "  sshi upload @remote:/path test.sh"
+    echo "  sshi save local root@localhost"
     echo "  sshi del my-site"
     echo
     echo "Endpoints are replaced on the fly, e.g."
