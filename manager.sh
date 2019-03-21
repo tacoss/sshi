@@ -25,16 +25,23 @@ exists () {
 
 cmd="${1:-}"
 name="${2:-}"
-conn="${3:-}"
+extra="${3:-}"
 
-if [[ $cmd =~ @(.+) ]]; then
+if [[ $@ =~ @([^:\ /]*) ]]; then
   name="${BASH_REMATCH[1]}"
 
   if ! exists $cmd $name; then
     echo "Connection '$name' does not exists!"
     exit 1
   else
-    echo "$AVAIL_SSHS" | awk "/^$name /{print \$2}"
+    conn="$(echo "$AVAIL_SSHS" | awk "/^$name /{print \$2}")"
+    value="$(echo $@ | sed "s/@$name/$conn/g")"
+
+    if [ "$#" -ge 2 ]; then
+      exec $value
+    else
+      echo $conn
+    fi
     exit 0
   fi
 fi
@@ -42,8 +49,8 @@ fi
 case $cmd in
   add|ad|a) ## Save SSH connection for later
     if ! exists $cmd $name; then
-      if [[ $conn =~ ^.+@.+$ ]]; then
-        echo "$name $conn" >> $SSHI_FILE
+      if [[ $extra =~ ^.+@.+$ ]]; then
+        echo "$name $extra" >> $SSHI_FILE
         exit 0
       else
         echo "Provide a valid connection, e.g. \`sshi $cmd $name user@host\`"
