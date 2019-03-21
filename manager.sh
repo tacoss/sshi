@@ -79,6 +79,11 @@ case $cmd in
       fi
     fi
 
+    if [[ ! -z "$cmd" ]]; then
+      echo "Unsupported '$cmd', type \`$SSHI_BIN\` without arguments for usage info"
+      exit 1
+    fi
+
     echo "Usage:"
     echo "  $SSHI_BIN [CMD|@NAME] [...]"
     echo
