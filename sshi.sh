@@ -18,7 +18,7 @@ exists () {
     exit 1
   fi
 
-  if [[ -z "$(echo $AVAIL_SSHS | grep "^$2 ")" ]]; then
+  if [[ -z "$(echo $AVAIL_SSHS | grep "\b$2 ")" ]]; then
     return 1
   fi
   return 0
