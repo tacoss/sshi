@@ -5,8 +5,10 @@ set -eu
 AVAIL_CMDS="$(cat $0 | awk -F'\\|.*##' '/[a-z|]+\) ##(.+?)/{printf "\033[36m%10s\033[0m %s\n",$1,$2}')"
 AVAIL_SSHS=""
 
-if [[ -f "$HOME/.sshiconf" ]]; then
-  AVAIL_SSHS="$(cat $HOME/.sshiconf)"
+SSHI_FILE="$HOME/.sshiconf"
+
+if [[ -f $SSHI_FILE ]]; then
+  AVAIL_SSHS="$(cat $SSHI_FILE)"
 fi
 
 exists () {
@@ -41,7 +43,7 @@ case $cmd in
   add|ad|a) ## Save SSH connection for later
     if ! exists $cmd $name; then
       if [[ $conn =~ ^.+@.+$ ]]; then
-        echo "$name $conn" >> $HOME/.sshiconf
+        echo "$name $conn" >> $SSHI_FILE
         exit 0
       else
         echo "Provide a valid connection, e.g. \`sshi $cmd $name user@host\`"
@@ -57,7 +59,7 @@ case $cmd in
       echo "Connection '$name' does not exists!"
       exit 1
     else
-      echo "$AVAIL_SSHS" | grep -vE "^$name " >> $HOME/.sshiconf
+      echo "$AVAIL_SSHS" | grep -vE "^$name " >> $SSHI_FILE
       exit 0
     fi
     ;;
@@ -67,7 +69,7 @@ case $cmd in
     exit 0
     ;;
   *)
-    echo "Available actions:"
+    echo "Available commands:"
     echo "$AVAIL_CMDS"
     exit 1
     ;;
