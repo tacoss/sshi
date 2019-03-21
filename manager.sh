@@ -28,12 +28,6 @@ name="${2:-}"
 extra="${3:-}"
 
 case $cmd in
-  download|down|d) ## Get files from endpoint
-    exec $0 scp $name $extra || exit 2
-    ;;
-  upload|up|u) ## Send files to endpoint
-    exec $0 scp $extra $name || exit 2
-    ;;
   save|s) ## Save SSH endpoint for later
     if ! exists $cmd $name; then
       if [[ $extra =~ ^.+@.+$ ]]; then
@@ -75,10 +69,10 @@ case $cmd in
         conn="$(echo "$AVAIL_SSHS" | awk "/^$name /{print \$2}")"
         value="$(echo $@ | sed "s/@$name/$conn/g")"
 
-        if [ "$#" -ge 2 ]; then
-          exec $value
+        if [[ "$#" -lt 2 ]] || [[ $cmd =~ @ ]]; then
+          ssh -qt $value || exit 2
         else
-          echo $conn
+          exec $value || exit 2
         fi
         exit 0
       fi
@@ -88,9 +82,11 @@ case $cmd in
     echo "  sshi [CMD|@NAME] [...]"
     echo
     echo "Examples:"
-    echo "  sshi upload @remote:/path test.sh"
     echo "  sshi save local root@localhost"
     echo "  sshi del my-site"
+    echo
+    echo "Execute commands through SSH, e.g."
+    echo "  sshi @my-site du -h /tmp"
     echo
     echo "Endpoints are replaced on the fly, e.g."
     echo "  sshi scp index.html @my-site:/var/www"
