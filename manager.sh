@@ -2,9 +2,10 @@
 
 set -eu
 
-AVAIL_CMDS="$(cat $0 | awk -F'\\|.*##' '/[a-z|]+\) ##(.+?)/{printf "%10s %s\n",$1,$2}')"
+AVAIL_CMDS="$(cat $0 | awk -F'\\|.*##' '/[a-z|]+\) ##(.+?)/{printf "%-6s %s\n",$1,$2}')"
 AVAIL_SSHS=""
 
+SSHI_BIN="$(basename $0)"
 SSHI_FILE="$HOME/.sshiconf"
 
 if [[ -f $SSHI_FILE ]]; then
@@ -13,7 +14,7 @@ fi
 
 exists () {
   if [[ -z "${2:-}" ]]; then
-    echo "Provide a valid name, e.g. \`sshi $1 NAME\`"
+    echo "Provide a valid name, e.g. \`$SSHI_BIN $1 NAME\`"
     exit 1
   fi
 
@@ -28,14 +29,14 @@ name="${2:-}"
 extra="${3:-}"
 
 case $cmd in
-  save|s) ## Save SSH endpoint for later
+  save|s) ## Register SSH endpoint for later
     if ! exists $cmd $name; then
       if [[ $extra =~ ^.+@.+$ ]]; then
         echo "$name $extra" >> $SSHI_FILE
         echo "Endpoint '$name' was added"
         exit 0
       else
-        echo "Provide a valid endpoint, e.g. \`sshi $cmd $name user@host\`"
+        echo "Provide a valid endpoint, e.g. \`$SSHI_BIN $cmd $name user@host\`"
         exit 1
       fi
     else
@@ -79,17 +80,17 @@ case $cmd in
     fi
 
     echo "Usage:"
-    echo "  sshi [CMD|@NAME] [...]"
+    echo "  $SSHI_BIN [CMD|@NAME] [...]"
     echo
     echo "Examples:"
-    echo "  sshi save local root@localhost"
-    echo "  sshi del my-site"
+    echo "  $SSHI_BIN save local root@localhost"
+    echo "  $SSHI_BIN del my-site"
     echo
     echo "Execute commands through SSH, e.g."
-    echo "  sshi @my-site du -h /tmp"
+    echo "  $SSHI_BIN @my-site du -h /tmp"
     echo
     echo "Endpoints are replaced on the fly, e.g."
-    echo "  sshi scp index.html @my-site:/var/www"
+    echo "  $SSHI_BIN scp index.html @my-site:/var/www"
     echo "    => scp index.html root@localhost:/var/www"
     echo
     echo "Available commands:"
