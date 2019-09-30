@@ -55,8 +55,12 @@ case $cmd in
     fi
     ;;
   ls|l) ## List registered endpoints
-    echo "Registered endpoints:"
-    echo "$AVAIL_SSHS" | awk '{printf "  @%-13s  %s\n",$1,$2}'
+    if [[ -z "$AVAIL_SSHS" ]]; then
+      echo "No registered endpoints"
+    else
+      echo "Registered endpoints:"
+      echo "$AVAIL_SSHS" | awk '/\w+/{printf "  @%-13s  %s\n",$1,$2}'
+    fi
     exit 0
     ;;
   *)
