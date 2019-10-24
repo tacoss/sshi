@@ -59,7 +59,7 @@ case $cmd in
       echo "No registered endpoints"
     else
       echo "Registered endpoints:"
-      echo "$AVAIL_SSHS" | awk '/\w+/{printf "  @%-13s  %s\n",$1,$2}'
+      echo "$AVAIL_SSHS" | awk '{printf "  @%-13s  %s\n",$1,$2}'
     fi
     exit 0
     ;;
@@ -72,12 +72,13 @@ case $cmd in
         exit 1
       else
         conn="$(echo "$AVAIL_SSHS" | awk "/^$name /{print \$2}")"
+        flags="$(echo "$AVAIL_SSHS" | awk "/^$name/" | cut -d ' ' -f 3-)"
         value="$(echo $@ | sed "s/@$name/$conn/g")"
 
         if [[ "$#" -lt 2 ]] || [[ $cmd =~ @ ]]; then
-          ssh -qt $value || exit 2
+          ssh -qt $value $flags || exit 2
         else
-          exec $value || exit 2
+          exec $value $flags || exit 2
         fi
         exit 0
       fi
