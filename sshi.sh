@@ -31,8 +31,8 @@ extra="${3:-}"
 case $cmd in
   save|s) ## Register SSH endpoint for later
     if ! exists $cmd $name; then
-      if [[ $extra =~ ^.+@.+$ ]]; then
-        echo "$name $extra" >> $SSHI_FILE
+      if [[ $extra =~ ^.+@ ]]; then
+        echo "$name $extra $(echo "$@" | cut -d ' ' -f 4-)" >> $SSHI_FILE
         echo "Endpoint '$name' was added"
         exit 0
       else
