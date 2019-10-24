@@ -72,7 +72,7 @@ case $cmd in
         exit 1
       else
         conn="$(echo "$AVAIL_SSHS" | awk "/^$name /{print \$2}")"
-        flags="$(echo "$AVAIL_SSHS" | awk "/^$name/" | cut -d ' ' -f 3-)"
+        flags="$(echo "$AVAIL_SSHS" | awk "/^$name /" | cut -d ' ' -f 3-)"
         value="$(echo $@ | sed "s/@$name/$conn/g")"
 
         if [[ "$#" -lt 2 ]] || [[ $cmd =~ @ ]]; then
