@@ -73,12 +73,14 @@ case $cmd in
       else
         conn="$(echo "$AVAIL_SSHS" | awk "/^$name /{print \$2}")"
         flags="$(echo "$AVAIL_SSHS" | awk "/^$name /" | cut -d ' ' -f 3-)"
-        value="$(echo $@ | sed "s/@$name/$conn/g")"
+        expand="$(echo "$@" | sed "s|@$name|$conn|g")"
+        command="$(echo "$expand" | awk '{print $1}')"
+        arguments="$(echo "$expand" | cut -d ' ' -f 2-)"
 
         if [[ "$#" -lt 2 ]] || [[ $cmd =~ @ ]]; then
-          ssh -qt $value $flags || exit 2
+          ssh $flags -qt $expand || exit 2
         else
-          exec $value $flags || exit 2
+          exec $command $flags $arguments || exit 2
         fi
         exit 0
       fi
