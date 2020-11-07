@@ -1,6 +1,6 @@
 {
   "name": "sshi",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "SSH manager you'll <3!",
   "bin": {
     "sshi": "sshi.sh"
